@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from singer_sdk.authenticators import OAuthAuthenticator, SingletonMeta
+from typing_extensions import override
+
+if TYPE_CHECKING:
+    from tap_taboola.client import TaboolaStream
 
 
 # The SingletonMeta metaclass makes your streams reuse the same authenticator instance.
@@ -10,25 +16,17 @@ from singer_sdk.authenticators import OAuthAuthenticator, SingletonMeta
 class TaboolaAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
     """Authenticator class for Taboola."""
 
+    @override
     @property
-    def oauth_request_body(self) -> dict:
-        """Define the OAuth request body for the AutomaticTestTap API.
-
-        Returns:
-            A dict with the request body
-        """
-        # TODO: Define the request body needed for the API.
+    def oauth_request_body(self):
         return {
-            "resource": "https://analysis.windows.net/powerbi/api",
-            "scope": self.oauth_scopes,
             "client_id": self.config["client_id"],
-            "username": self.config["username"],
-            "password": self.config["password"],
-            "grant_type": "password",
+            "client_secret": self.config["client_secret"],
+            "grant_type": "client_credentials",
         }
 
     @classmethod
-    def create_for_stream(cls, stream) -> TaboolaAuthenticator:  # noqa: ANN001
+    def create_for_stream(cls, stream: TaboolaStream) -> TaboolaAuthenticator:
         """Instantiate an authenticator for a specific Singer stream.
 
         Args:
@@ -39,6 +37,5 @@ class TaboolaAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
         """
         return cls(
             stream=stream,
-            auth_endpoint="TODO: OAuth Endpoint URL",
-            oauth_scopes="TODO: OAuth Scopes",
+            auth_endpoint="https://backstage.taboola.com/backstage/oauth/token",
         )

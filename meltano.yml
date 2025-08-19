@@ -18,16 +18,14 @@ plugins:
     - about
     - stream-maps
 
-    # TODO: Declare settings and their types here:
     settings:
-    - name: username
-      label: Username
-      description: The username to use for authentication
+    - name: client_id
+      label: Client ID
+      description: Taboola Backstage API client ID
 
-    - name: password
-      kind: password
-      label: Password
-      description: The password to use for authentication
+    - name: client_secret
+      label: Client Secret
+      description: Taboola Backstage API client secret
       sensitive: true
 
     - name: start_date
@@ -35,9 +33,8 @@ plugins:
       label: Start Date
       description: Initial date to start extracting data from
 
-    # TODO: Declare required settings here:
     settings_group_validation:
-    - [username, password]
+    - [client_id, client_secret]
 
     # TODO: Declare default configuration values here:
     config:
