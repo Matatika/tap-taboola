@@ -8,8 +8,9 @@ from functools import cached_property
 from importlib import resources
 
 from singer_sdk.helpers.jsonpath import extract_jsonpath
-from singer_sdk.pagination import BaseAPIPaginator  # noqa: TC002
+from singer_sdk.pagination import SinglePagePaginator
 from singer_sdk.streams import RESTStream
+from typing_extensions import override
 
 from tap_taboola.auth import TaboolaAuthenticator
 
@@ -25,8 +26,7 @@ SCHEMAS_DIR = resources.files(__package__) / "schemas"
 class TaboolaStream(RESTStream):
     """Taboola stream class."""
 
-    # Update this value if necessary or override `parse_response`.
-    records_jsonpath = "$[*]"
+    records_jsonpath = "$.results[*]"
 
     # Update this value if necessary or override `get_new_paginator`.
     next_page_token_jsonpath = "$.next_page"  # noqa: S105
@@ -51,21 +51,9 @@ class TaboolaStream(RESTStream):
         """
         return {}
 
-    def get_new_paginator(self) -> BaseAPIPaginator | None:
-        """Create a new pagination helper instance.
-
-        If the source API can make use of the `next_page_token_jsonpath`
-        attribute, or it contains a `X-Next-Page` header in the response
-        then you can remove this method.
-
-        If you need custom pagination that uses page numbers, "next" links, or
-        other approaches, please read the guide: https://sdk.meltano.com/en/v0.25.0/guides/pagination-classes.html.
-
-        Returns:
-            A pagination helper instance, or ``None`` to indicate pagination
-            is not supported.
-        """
-        return super().get_new_paginator()
+    @override
+    def get_new_paginator(self):
+        return SinglePagePaginator()
 
     def get_url_params(
         self,

@@ -2,65 +2,38 @@
 
 from __future__ import annotations
 
-import typing as t
-from importlib import resources
-
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_taboola.client import TaboolaStream
 
-# TODO: Delete this is if not using json files for schema definition
-SCHEMAS_DIR = resources.files(__package__) / "schemas"
-# TODO: - Override `UsersStream` and `GroupsStream` with your own stream definition.
-#       - Copy-paste as many times as needed to create multiple stream types.
 
+class AccountStream(TaboolaStream):
+    """Define accounts stream."""
 
-class UsersStream(TaboolaStream):
-    """Define custom stream."""
+    name = "accounts"
+    path = "/users/current/allowed-accounts"
+    primary_keys = ("id",)
 
-    name = "users"
-    path = "/users"
-    primary_keys: t.ClassVar[list[str]] = ["id"]
-    replication_key = None
-    # Optionally, you may also use `schema_filepath` in place of `schema`:
-    # schema_filepath = SCHEMAS_DIR / "users.json"  # noqa: ERA001
     schema = th.PropertiesList(
+        th.Property("id", th.NumberType),
         th.Property("name", th.StringType),
+        th.Property("account_id", th.StringType),
+        th.Property("partner_types", th.ArrayType(th.StringType)),
+        th.Property("type", th.StringType),
+        th.Property("campaign_types", th.ArrayType(th.StringType)),
+        th.Property("currency", th.StringType),
+        th.Property("time_zone_name", th.StringType),
+        th.Property("default_platform", th.StringType),
+        th.Property("is_active", th.BooleanType),
+        th.Property("language", th.StringType),
+        th.Property("country", th.StringType),
+        th.Property("is_fla", th.BooleanType),
         th.Property(
-            "id",
-            th.StringType,
-            description="The user's system ID",
+            "account_metadata",
+            th.NullType(),  # TODO: establish what type this is
         ),
         th.Property(
-            "age",
-            th.IntegerType,
-            description="The user's age in years",
+            "external_metadata",
+            th.NullType(),  # TODO: establish what type this is
         ),
-        th.Property(
-            "email",
-            th.StringType,
-            description="The user's email address",
-        ),
-        th.Property("street", th.StringType),
-        th.Property("city", th.StringType),
-        th.Property(
-            "state",
-            th.StringType,
-            description="State name in ISO 3166-2 format",
-        ),
-        th.Property("zip", th.StringType),
-    ).to_dict()
-
-
-class GroupsStream(TaboolaStream):
-    """Define custom stream."""
-
-    name = "groups"
-    path = "/groups"
-    primary_keys: t.ClassVar[list[str]] = ["id"]
-    replication_key = "modified"
-    schema = th.PropertiesList(
-        th.Property("name", th.StringType),
-        th.Property("id", th.StringType),
-        th.Property("modified", th.DateTimeType),
     ).to_dict()
