@@ -11,6 +11,7 @@ from tap_taboola import streams
 STREAM_TYPES = [
     streams.AccountStream,
     streams.CampaignStream,
+    streams.CampaignItemStream,
 ]
 
 

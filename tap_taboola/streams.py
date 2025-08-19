@@ -299,3 +299,180 @@ class CampaignStream(TaboolaStream):
             raise _ResumableAPIError(msg, response)
 
         super().validate_response(response)
+
+    @override
+    def get_child_context(self, record, context):
+        return context | {"campaign_id": record["id"]}
+
+
+class CampaignItemStream(TaboolaStream):
+    """Define campaign items stream."""
+
+    parent_stream_type = CampaignStream
+    name = "campaign_items"
+    path = "/{account_id}/campaigns/{campaign_id}/items"
+    primary_keys = ("id", "campaign_id")
+
+    schema = th.PropertiesList(
+        th.Property("id", th.StringType),
+        th.Property("campaign_id", th.StringType),
+        th.Property("type", th.StringType),
+        th.Property("url", th.URIType),
+        th.Property("thumbnail_url", th.URIType),
+        th.Property("title", th.StringType),
+        th.Property("description", th.StringType),
+        th.Property("approval_state", th.StringType),
+        th.Property("is_active", th.BooleanType),
+        th.Property("status", th.StringType),
+        th.Property(
+            "policy_review",
+            th.ObjectType(
+                th.Property("reject_reason", th.StringType),
+                th.Property("reject_reason_description", th.StringType),
+                th.Property("status_reason", th.StringType),
+                th.Property("reviewer_notes", th.StringType),
+            ),
+        ),
+        th.Property(
+            "cta",
+            th.ObjectType(
+                th.Property("cta_type", th.StringType),
+            ),
+        ),
+        th.Property(
+            "creative_focus",
+            th.ObjectType(
+                th.Property("type", th.StringType),
+                th.Property(
+                    "coordinates",
+                    th.ObjectType(
+                        th.Property("x", th.IntegerType),
+                        th.Property("y", th.IntegerType),
+                    ),
+                ),
+            ),
+        ),
+        th.Property(
+            "verification_pixel",
+            th.ObjectType(
+                th.Property(
+                    "verification_pixel_items",
+                    th.ArrayType(
+                        th.ObjectType(
+                            th.Property("url", th.URIType),
+                            th.Property("verification_pixel_type", th.StringType),
+                        ),
+                    ),
+                )
+            ),
+        ),
+        th.Property(
+            "viewability_tag",
+            th.ObjectType(
+                th.Property(
+                    "values",
+                    th.ArrayType(
+                        th.ObjectType(
+                            th.Property("type", th.StringType),
+                            th.Property("tag", th.StringType),
+                        ),
+                    ),
+                )
+            ),
+        ),
+        th.Property(
+            "app_install",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "app_install",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "logo",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "disclaimer",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "creative_crop",
+            th.ObjectType(
+                th.Property(
+                    "crop_date",
+                    th.ObjectType(
+                        th.Property(
+                            "ratio",
+                            th.ObjectType(
+                                th.Property("width", th.IntegerType),
+                                th.Property("height", th.IntegerType),
+                            ),
+                        ),
+                        th.Property(
+                            "area",
+                            th.ObjectType(
+                                th.Property("top_left_x", th.IntegerType),
+                                th.Property("top_left_y", th.IntegerType),
+                                th.Property("width", th.IntegerType),
+                                th.Property("height", th.IntegerType),
+                            ),
+                        ),
+                        th.Property("url", th.URIType),
+                    ),
+                ),
+            ),
+        ),
+        th.Property(
+            "external_metadata",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property("creative_type", th.StringType),
+        th.Property(
+            "performance_video_data",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "display_data",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "hierarchy_rep_item_id",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "hierarchy_data",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
+            "custom_data",
+            th.ObjectType(
+                th.Property("creative_name", th.StringType),
+                th.Property("custom_id", th.StringType),
+            ),
+        ),
+        th.Property("start_date", th.DateType),
+        th.Property("end_date", th.DateType),
+        th.Property(
+            "activity_schedule",
+            th.ObjectType(
+                th.Property("mode", th.StringType),
+                th.Property(
+                    "rules",
+                    th.ArrayType(
+                        th.ObjectType(
+                            th.Property("type", th.StringType),
+                            th.Property("day", th.StringType),
+                            th.Property("from_hour", th.IntegerType),
+                            th.Property("until_hour", th.IntegerType),
+                        )
+                    ),
+                ),
+                th.Property("time_zone", th.StringType),
+            ),
+        ),
+        th.Property(
+            "orientation",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+    ).to_dict()
