@@ -12,6 +12,7 @@ STREAM_TYPES = [
     streams.AccountStream,
     streams.CampaignStream,
     streams.CampaignItemStream,
+    streams.TopCampaignContentDailyReportStream,
     streams.PublisherStream,
 ]
 

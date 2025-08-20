@@ -9,8 +9,11 @@ from singer_sdk import typing as th  # JSON Schema typing helpers
 from typing_extensions import override
 
 from tap_taboola.client import TaboolaStream
+from tap_taboola.pagination import DayPaginator
 
 if TYPE_CHECKING:
+    from datetime import date
+
     import requests
 
 TargetingType = th.PropertiesList(
@@ -476,6 +479,92 @@ class CampaignItemStream(TaboolaStream):
             th.NullType(),  # TODO: establish what type this is
         ),
     ).to_dict()
+
+
+class TopCampaignContentDailyReportStream(TaboolaStream):
+    """Define top campaign content daily report stream."""
+
+    _date: date
+
+    parent_stream_type = AccountStream
+    name = "top_campaign_content_daily_report"
+    path = "/{account_id}/reports/top-campaign-content/dimensions/item_breakdown"
+    primary_keys = ("date", "item", "content_provider")
+    replication_key = "date"
+    is_timestamp_replication_key = True
+    is_sorted = True
+
+    schema = th.PropertiesList(
+        th.Property("date", th.DateType),
+        th.Property("item", th.StringType),
+        th.Property("ad_name", th.StringType),
+        th.Property("custom_id", th.StringType),
+        th.Property("item_name", th.StringType),
+        th.Property("description", th.StringType),
+        th.Property("thumbnail_url", th.URIType),
+        th.Property("url", th.URIType),
+        th.Property("campaign", th.StringType),
+        th.Property("campaign_name", th.StringType),
+        th.Property("content_provider", th.StringType),
+        th.Property("content_provider_name", th.StringType),
+        th.Property("content_provider_id_name", th.StringType),
+        th.Property("impressions", th.IntegerType),
+        th.Property("visible_impressions", th.IntegerType),
+        th.Property("ctr", th.NumberType),
+        th.Property("vctr", th.NumberType),
+        th.Property("clicks", th.IntegerType),
+        th.Property("cpc", th.NumberType),
+        th.Property("cvr", th.NumberType),
+        th.Property("cvr_clicks", th.NumberType),
+        th.Property("cvr_views", th.NumberType),
+        th.Property("cpa", th.NumberType),
+        th.Property("cpa_clicks", th.NumberType),
+        th.Property("cpa_views", th.NumberType),
+        th.Property("actions", th.IntegerType),
+        th.Property("actions_num_from_clicks", th.IntegerType),
+        th.Property("actions_num_from_views", th.IntegerType),
+        th.Property("cpm", th.NumberType),
+        th.Property("vcpm", th.NumberType),
+        th.Property("spent", th.NumberType),
+        th.Property("conversions_value", th.NumberType),
+        th.Property("roas", th.NumberType),
+        th.Property("currency", th.StringType),
+        th.Property("create_time", th.DateTimeType),
+        th.Property("old_item_version_id", th.StringType),
+        th.Property("learning_display_status", th.StringType),
+    ).to_dict()
+
+    @override
+    def get_new_paginator(self):
+        start_date = self.get_starting_timestamp(self.context).date()
+        return DayPaginator(start_date)
+
+    @override
+    def get_url_params(self, context, next_page_token: date):
+        self._date = next_page_token
+
+        return {
+            "start_date": next_page_token.isoformat(),
+            "end_date": next_page_token.isoformat(),
+        }
+
+    @override
+    def post_process(self, row, context=None):
+        if row["item"] is None:
+            self.logger.warning("Ignoring invalid record with null `item` ID: %s", row)
+            return None
+
+        row["date"] = self._date.isoformat()
+        return row
+
+    @override
+    def _finalize_state(self, state=None):
+        if state is not None:
+            # always update state for the current date, even if no records were returned
+            state.setdefault("replication_key", self.replication_key)
+            state["replication_key_value"] = self._date.isoformat()
+
+        return super()._finalize_state(state)
 
 
 class PublisherStream(TaboolaStream):
