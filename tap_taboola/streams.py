@@ -481,6 +481,71 @@ class CampaignItemStream(TaboolaStream):
     ).to_dict()
 
 
+class CampaignSummarySiteDailyReport(TaboolaStream):
+    """Define campaign summary site daily report stream."""
+
+    parent_stream_type = AccountStream
+    name = "campaign_summary_site_daily_report"
+    path = (
+        "/{account_id}/reports/campaign-summary/dimensions/campaign_site_day_breakdown"
+    )
+    primary_keys = ("date", "site_id", "campaign")
+    replication_key = "date"
+    is_timestamp_replication_key = True
+    is_sorted = True
+
+    schema = th.PropertiesList(
+        th.Property("date", th.DateType),
+        th.Property("site", th.StringType),
+        th.Property("site_name", th.StringType),
+        th.Property("site_id", th.IntegerType),
+        th.Property("campaign", th.StringType),
+        th.Property("campaign_name", th.StringType),
+        th.Property("clicks", th.IntegerType),
+        th.Property("impressions", th.IntegerType),
+        th.Property("visible_impressions", th.IntegerType),
+        th.Property("spent", th.NumberType),
+        th.Property("conversions_value", th.NumberType),
+        th.Property("roas", th.NumberType),
+        th.Property("roas_clicks", th.NumberType),
+        th.Property("roas_views", th.NumberType),
+        th.Property("ctr", th.NumberType),
+        th.Property("vctr", th.NumberType),
+        th.Property("cpm", th.NumberType),
+        th.Property("vcpm", th.NumberType),
+        th.Property("cpc", th.NumberType),
+        th.Property("cpa", th.NumberType),
+        th.Property("cpa_clicks", th.NumberType),
+        th.Property("cpa_views", th.NumberType),
+        th.Property("cpa_actions_num", th.IntegerType),
+        th.Property("cpa_conversion_rate_clicks", th.NumberType),
+        th.Property("cpa_conversion_rate_views", th.NumberType),
+        th.Property("blocking_level", th.StringType),
+        th.Property("currency", th.StringType),
+    ).to_dict()
+
+    @override
+    def get_new_paginator(self):
+        start_date = self.get_starting_timestamp(self.context).date()
+        return DayPaginator(start_date)
+
+    @override
+    def get_url_params(self, context, next_page_token: date):
+        self._date = next_page_token
+
+        return {
+            "start_date": next_page_token.isoformat(),
+            "end_date": next_page_token.isoformat(),
+        }
+
+    @override
+    def post_process(self, row, context=None):
+        date: str = row["date"]
+        row["date"] = date.removesuffix(".0")
+
+        return row
+
+
 class TopCampaignContentDailyReportStream(TaboolaStream):
     """Define top campaign content daily report stream."""
 
