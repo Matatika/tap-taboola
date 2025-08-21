@@ -28,6 +28,11 @@ plugins:
       description: Taboola Backstage API client secret
       sensitive: true
 
+    - name: account_ids
+      kind: array
+      label: Account IDs
+      description: Human-readable identifiers of accounts to extract
+
     - name: start_date
       kind: date_iso8601
       label: Start Date

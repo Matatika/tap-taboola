@@ -40,6 +40,13 @@ class TapTaboola(Tap):
             description="Taboola Backstage API client secret",
         ),
         th.Property(
+            "account_ids",
+            th.ArrayType(th.StringType),
+            title="Account IDs",
+            description="Human-readable identifiers of accounts to extract",
+            default=[],
+        ),
+        th.Property(
             "start_date",
             th.DateTimeType,
             title="Start Date",

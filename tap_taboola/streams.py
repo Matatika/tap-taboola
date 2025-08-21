@@ -76,6 +76,35 @@ class AccountStream(TaboolaStream):
     ).to_dict()
 
     @override
+    def get_records(self, context):
+        records = super().get_records(context)
+
+        account_ids = set(self.config["account_ids"])
+
+        if not account_ids:
+            yield from records
+            return
+
+        for record in records:
+            account_id = record["account_id"]
+
+            if account_id in account_ids:
+                account_ids.remove(account_id)
+                yield record
+                continue
+
+            self.logger.info("Account '%s' is not selected; skipping", account_id)
+
+        if account_ids:
+            self.logger.warning(
+                (
+                    "Some accounts IDs are either not accessible or do not exist for"
+                    " the authenticated principal: %s"
+                ),
+                account_ids,
+            )
+
+    @override
     def get_child_context(self, record, context):
         return {"account_id": record["account_id"]}
 
