@@ -493,6 +493,7 @@ class CampaignSummarySiteDailyReport(TaboolaStream):
     replication_key = "date"
     is_timestamp_replication_key = True
     is_sorted = True
+    selected_by_default = False
 
     schema = th.PropertiesList(
         th.Property("date", th.DateType),
@@ -558,6 +559,7 @@ class TopCampaignContentDailyReportStream(TaboolaStream):
     replication_key = "date"
     is_timestamp_replication_key = True
     is_sorted = True
+    selected_by_default = False
 
     schema = th.PropertiesList(
         th.Property("date", th.DateType),
