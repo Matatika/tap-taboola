@@ -289,6 +289,7 @@ class CampaignStream(TaboolaStream):
             ),
         ),
         th.Property("browser_targeting", TargetingType),
+        th.Property("type", th.StringType),
         th.Property(
             "external_metadata",
             th.NullType(),  # TODO: establish what type this is
@@ -421,6 +422,10 @@ class CampaignItemStream(TaboolaStream):
             th.NullType(),  # TODO: establish what type this is
         ),
         th.Property(
+            "rating",
+            th.NullType(),  # TODO: establish what type this is
+        ),
+        th.Property(
             "logo",
             th.NullType(),  # TODO: establish what type this is
         ),
@@ -432,7 +437,7 @@ class CampaignItemStream(TaboolaStream):
             "creative_crop",
             th.ObjectType(
                 th.Property(
-                    "crop_date",
+                    "crop_data",
                     th.ObjectType(
                         th.Property(
                             "ratio",
