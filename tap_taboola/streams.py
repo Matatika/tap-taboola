@@ -580,6 +580,14 @@ class CampaignSummarySiteDailyReport(TaboolaStream):
 
         return row
 
+    @override
+    def _finalize_state(self, state=None):
+        if state is not None:
+            # always update state for the current date, even if no records were returned
+            state.setdefault("replication_key", self.replication_key)
+            state["replication_key_value"] = self._date.isoformat()
+
+        return super()._finalize_state(state)
 
 class TopCampaignContentDailyReportStream(TaboolaStream):
     """Define top campaign content daily report stream."""
