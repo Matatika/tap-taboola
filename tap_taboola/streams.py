@@ -525,7 +525,7 @@ class CampaignSummarySiteDailyReport(TaboolaStream):
     selected_by_default = False
 
     schema = th.PropertiesList(
-        th.Property("date", th.DateType),
+        th.Property("date", th.DateTimeType),
         th.Property("site", th.StringType),
         th.Property("site_name", th.StringType),
         th.Property("site_id", th.IntegerType),
