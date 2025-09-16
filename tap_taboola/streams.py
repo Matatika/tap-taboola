@@ -589,6 +589,7 @@ class CampaignSummarySiteDailyReport(TaboolaStream):
 
         return super()._finalize_state(state)
 
+
 class TopCampaignContentDailyReportStream(TaboolaStream):
     """Define top campaign content daily report stream."""
 
