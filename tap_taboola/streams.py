@@ -9,7 +9,7 @@ from singer_sdk import typing as th  # JSON Schema typing helpers
 from typing_extensions import override
 
 from tap_taboola.client import TaboolaStream
-from tap_taboola.pagination import DayPaginator
+from tap_taboola.pagination import DateRangePaginator
 
 if TYPE_CHECKING:
     from datetime import date
@@ -562,15 +562,16 @@ class CampaignSummarySiteDailyReport(TaboolaStream):
     @override
     def get_new_paginator(self):
         start_date = self.get_starting_timestamp(self.context).date()
-        return DayPaginator(start_date)
+        return DateRangePaginator(start_date, days=0)
 
     @override
-    def get_url_params(self, context, next_page_token: date):
-        self._date = next_page_token
+    def get_url_params(self, context, next_page_token: tuple[date, date]):
+        start, end = next_page_token
+        self._date = end
 
         return {
-            "start_date": next_page_token.isoformat(),
-            "end_date": next_page_token.isoformat(),
+            "start_date": start.isoformat(),
+            "end_date": end.isoformat(),
         }
 
     @override
@@ -647,15 +648,16 @@ class TopCampaignContentDailyReportStream(TaboolaStream):
     @override
     def get_new_paginator(self):
         start_date = self.get_starting_timestamp(self.context).date()
-        return DayPaginator(start_date)
+        return DateRangePaginator(start_date, days=0)
 
     @override
-    def get_url_params(self, context, next_page_token: date):
-        self._date = next_page_token
+    def get_url_params(self, context, next_page_token: tuple[date, date]):
+        start, end = next_page_token
+        self._date = end
 
         return {
-            "start_date": next_page_token.isoformat(),
-            "end_date": next_page_token.isoformat(),
+            "start_date": start.isoformat(),
+            "end_date": end.isoformat(),
         }
 
     @override
